@@ -1,0 +1,257 @@
+:root {
+  --bg: #f2f3ef;
+  --surface: #ffffff;
+  --ink: #14171c;
+  --muted: #6b7280;
+  --line: #e1e2dc;
+  --accent: #b5860f;
+  --accent-soft: #f4e9cf;
+  --success: #3f6c51;
+  --danger: #a3352c;
+  --radius: 8px;
+  --sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+.page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 64px 24px 48px;
+}
+
+.header h1 {
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 0 0 8px;
+}
+
+.subhead {
+  color: var(--muted);
+  margin: 0 0 40px;
+  font-size: 15px;
+  max-width: 46ch;
+}
+
+.dropzone {
+  border: 1.5px dashed var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  padding: 56px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.dropzone--active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.dropzone--compact {
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.dropzone__title {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.dropzone__title--compact {
+  font-size: 14px;
+  color: var(--accent);
+}
+
+.dropzone__hint {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.quality {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.quality input[type="range"] {
+  accent-color: var(--accent);
+  width: 140px;
+}
+
+.quality__value {
+  font-family: var(--mono);
+  color: var(--ink);
+  min-width: 2ch;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn {
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 500;
+  padding: 9px 16px;
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.btn--primary {
+  background: var(--ink);
+  color: var(--surface);
+}
+
+.btn--primary:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+.btn--ghost {
+  background: transparent;
+  border-color: var(--line);
+  color: var(--ink);
+}
+
+.btn--ghost:hover {
+  background: var(--surface);
+}
+
+.btn--small {
+  padding: 6px 12px;
+  font-size: 13px;
+}
+
+.list {
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 0;
+  border-top: 1px solid var(--line);
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 40px 1fr auto auto;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 4px;
+  border-bottom: 1px solid var(--line);
+}
+
+.row__thumb {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 6px;
+  background: var(--line);
+}
+
+.row__name {
+  font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.row__sizes {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.row__arrow {
+  color: var(--muted);
+}
+
+.row__pct {
+  color: var(--success);
+  font-family: var(--mono);
+  font-size: 12px;
+}
+
+.row__error {
+  color: var(--danger);
+  font-size: 13px;
+}
+
+.row__buttons {
+  display: flex;
+  gap: 6px;
+}
+
+.mono {
+  font-family: var(--mono);
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.summary {
+  color: var(--muted);
+  font-size: 13px;
+  text-align: right;
+  margin: 0 0 40px;
+}
+
+.footer {
+  border-top: 1px solid var(--line);
+  padding-top: 16px;
+  margin-top: 24px;
+}
+
+.footer p {
+  color: var(--muted);
+  font-size: 13px;
+  margin: 0;
+}
+
+@media (max-width: 520px) {
+  .row {
+    grid-template-columns: 32px 1fr;
+    row-gap: 6px;
+  }
+  .row__sizes,
+  .row__buttons {
+    grid-column: 2;
+  }
+}
