@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const ACCEPTED = ["image/png", "image/jpeg", "image/bmp", "image/gif", "image/tiff", "image/webp"];
+const MAX_BYTES = 2 * 1024 * 1024; // 2MB cap for web performance
+const MIN_QUALITY = 10;
+const MIN_DIMENSION = 100;
 
 function humanSize(bytes) {
   if (bytes < 1024) return `${bytes} B`;
@@ -19,14 +22,12 @@ function withoutExtension(name) {
   return idx > 0 ? name.slice(0, idx) : name;
 }
 
-async function convertToWebp(file, quality) {
-  const bitmap = await createImageBitmap(file);
+function encodeWebp(bitmap, width, height, quality) {
   const canvas = document.createElement("canvas");
-  canvas.width = bitmap.width;
-  canvas.height = bitmap.height;
+  canvas.width = width;
+  canvas.height = height;
   const ctx = canvas.getContext("2d");
-  ctx.drawImage(bitmap, 0, 0);
-  bitmap.close?.();
+  ctx.drawImage(bitmap, 0, 0, width, height);
 
   return new Promise((resolve, reject) => {
     canvas.toBlob(
@@ -35,6 +36,33 @@ async function convertToWebp(file, quality) {
       quality / 100
     );
   });
+}
+
+// Enforces MAX_BYTES by stepping quality down first, then downscaling
+// dimensions if lowering quality alone can't get under the cap.
+async function convertToWebp(file, quality) {
+  const bitmap = await createImageBitmap(file);
+  let width = bitmap.width;
+  let height = bitmap.height;
+  let q = quality;
+  let blob = await encodeWebp(bitmap, width, height, q);
+  let capped = false;
+
+  while (blob.size > MAX_BYTES && q > MIN_QUALITY) {
+    q = Math.max(MIN_QUALITY, q - 10);
+    blob = await encodeWebp(bitmap, width, height, q);
+    capped = true;
+  }
+
+  while (blob.size > MAX_BYTES && width > MIN_DIMENSION && height > MIN_DIMENSION) {
+    width = Math.max(MIN_DIMENSION, Math.round(width * 0.9));
+    height = Math.max(MIN_DIMENSION, Math.round(height * 0.9));
+    blob = await encodeWebp(bitmap, width, height, q);
+    capped = true;
+  }
+
+  bitmap.close?.();
+  return { blob, capped };
 }
 
 let nextId = 0;
@@ -48,7 +76,7 @@ export default function App() {
 
   const runConversion = useCallback((id, file, q) => {
     convertToWebp(file, q)
-      .then((blob) => {
+      .then(({ blob, capped }) => {
         setItems((prev) =>
           prev.map((it) =>
             it.id === id
@@ -58,6 +86,7 @@ export default function App() {
                   convertedBlob: blob,
                   convertedSize: blob.size,
                   convertedUrl: URL.createObjectURL(blob),
+                  capped,
                 }
               : it
           )
@@ -142,7 +171,10 @@ export default function App() {
     <div className="page">
       <header className="header">
         <h1>WebP Converter</h1>
-        <p className="subhead">Convert images to WebP entirely in your browser. Nothing is uploaded anywhere.</p>
+        <p className="subhead">
+          Convert images to WebP entirely in your browser. Nothing is uploaded anywhere. Files are
+          automatically compressed to stay under 2MB for best web performance.
+        </p>
       </header>
 
       <section
@@ -222,6 +254,11 @@ export default function App() {
                       {(1 - item.convertedSize / item.originalSize) * 100 >= 0 ? "-" : "+"}
                       {Math.abs((1 - item.convertedSize / item.originalSize) * 100).toFixed(0)}%
                     </span>
+                    {item.capped && (
+                      <span className="row__badge" title="Quality and/or dimensions were reduced to stay under 2MB">
+                        capped to 2MB
+                      </span>
+                    )}
                   </>
                 )}
               </div>

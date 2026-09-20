@@ -213,6 +213,16 @@ body {
   font-size: 13px;
 }
 
+.row__badge {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-radius: 999px;
+  padding: 2px 8px;
+  white-space: nowrap;
+}
+
 .row__buttons {
   display: flex;
   gap: 6px;
